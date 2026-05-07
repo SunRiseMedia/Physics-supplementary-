@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Supplementary Exam</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --danger-color: #e74c3c;
+            --bg-color: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+        .rules-container {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--secondary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .rules-container h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .question-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+        .question-text {
+            font-size: 1.15em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        .options-list label {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: #fdfdfd;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .options-list label:hover {
+            background: #f1f8ff;
+            border-color: var(--secondary-color);
+        }
+        .options-list input[type="checkbox"] {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 30px;
+            margin-bottom: 50px;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);
+        }
+        .submit-btn:hover {
+            background: #219a52;
+        }
+        #results-container {
+            display: none;
+            text-align: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            border-top: 5px solid var(--accent-color);
+        }
+        #score-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            background: #e8f8f5;
+            color: var(--accent-color);
+            border-left: 4px solid var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Physics Supplementary Exam</h1>
+        <p>Mock Test Evaluation Module</p>
+    </header>
+
+    <div class="rules-container">
+        <h3>Exam Instructions & Grading Rules</h3>
+        <p>Every question below has <b>exactly one</b> scientifically correct answer based on the syllabus. However, to test your absolute certainty, you are allowed to select <b>multiple options</b> if you are unsure.</p>
+        <ul>
+            <li>For every <b>correct</b> checkbox you select: <strong style="color:var(--accent-color);">+3 Points</strong></li>
+            <li>For every <b>incorrect</b> checkbox you select: <strong style="color:var(--danger-color);">-1 Point</strong></li>
+        </ul>
+        <p><i>Example: If you select 2 boxes, and 1 is correct and 1 is wrong, you will earn 2 points for that question (3 - 1).</i></p>
+    </div>
+
+    <form id="exam-form">
+        <div id="questions-container">
+            </div>
+        <button type="button" class="submit-btn" onclick="submitExam()">Submit Exam & Reveal Score</button>
+    </form>
+
+    <div id="results-container">
+        <div id="score-display"></div>
+        <p>Scroll up to review your answers. The correct option for each question is now highlighted in green beneath it.</p>
+    </div>
+
+<script>
+    // Physics mock test data based on the uploaded PDFs
+    // Note: Only 1 correct answer exists per question in reality, defined by the single integer in 'ans' array.
+    const quizData = [
+        { 
+            q: "1. A Newton is equal to which of the following?", 
+            opts: ["\\(kg \\cdot m \\cdot s^{-1}\\)", "\\(kg \\cdot m \\cdot s^{-2}\\)", "\\(m \\cdot s^{-2}\\)", "\\(kg \\cdot m^{-1} \\cdot s^{-1}\\)"], 
+            ans: [1] 
+        },
+        { 
+            q: "2. Two bodies of equal mass are moving in circular paths at equal speed. The first body moves in a circle whose radius is twice as large as that of the second. The ratio of the centripetal acceleration of the first body to that of the second is:", 
+            opts: ["1 to 1", "2 to 1", "1 to 2", "1 to 4"], 
+            ans: [2] 
+        },
+        { 
+            q: "3. What does the lens equation state? (f: focal length; g: object distance; b: image distance)", 
+            opts: ["\\(f = g + b\\)", "\\(1/f = 1/g + 1/b\\)", "\\(1/f = 1/g \\cdot 1/b\\)", "\\(f = g \\cdot b\\)"], 
+            ans: [1] 
+        },
+        { 
+            q: "4. The ideal gas equation relates Temperature T, number of mols n, volume V, and pressure p. R is the universal gas constant. It states that:", 
+            opts: ["\\(T \\cdot p = n \\cdot R \\cdot V\\)", "\\(T \\cdot V = n \\cdot R \\cdot p\\)", "\\(n \\cdot R = p \\cdot V \\cdot T\\)", "\\(p \\cdot V = n \\cdot R \\cdot T\\)"], 
+            ans: [3] 
+        },
+        { 
+            q: "5. What is causing a magnetic field?", 
+            opts: ["A static mass", "A static charge", "A moving charge", "A moving mass"], 
+            ans: [2] 
+        },
+        { 
+            q: "6. A block on a horizontal frictionless plane is attached to a spring and oscillates along the x-axis with amplitude A. Which of the following is correct?", 
+            opts: ["The kinetic energy of the block is at a maximum at x=0.", "The potential energy of the spring is at a minimum at x=A.", "The kinetic energy of the block is at a minimum at x=0.", "The potential energy of the spring is at a maximum at x=0."], 
+            ans: [0] 
+        },
+        { 
+            q: "7. Two waves of equal wavelength will interfere destructively most effectively when they are:", 
+            opts: ["in-phase and have equal amplitudes", "180 degrees out-of-phase and have unequal amplitudes", "in-phase and have unequal amplitudes", "180 degrees out-of-phase and have equal amplitudes"], 
+            ans: [3] 
+        },
+        { 
+            q: "8. The half-life of a radioactive isotope is 6 hours. After 18 hours, the fraction of the original sample remaining is:", 
+            opts: ["1/4", "1/8", "1/16", "1/2"], 
+            ans: [1] 
+        },
+        { 
+            q: "9. The particle nature of light is demonstrated by which of the following?", 
+            opts: ["Diffraction", "The speed of light", "The photoelectric effect", "The various colors of light"], 
+            ans: [2] 
+        },
+        { 
+            q: "10. What is the rotational energy of an object with moment of inertia I and angular velocity ω?", 
+            opts: ["\\(\\frac{1}{2} I \\omega^2\\)", "\\(I \\omega^2\\)", "\\(I^2 \\omega\\)", "\\(\\frac{1}{2} I^2 \\omega\\)"], 
+            ans: [0] 
+        },
+        { 
+            q: "11. A machine having an efficiency of 50% does 500 J of work. Which of the following is the work input?", 
+            opts: ["250 J", "500 J", "1000 J", "2500 J"], 
+            ans: [2] 
+        },
+        { 
+            q: "12. 200 Joules of heat are added to 2 grams of water. Thus, the temperature of the water rises by a total of approximately:", 
+            opts: ["5°C", "25°C", "50°C", "100°C"], 
+            ans: [1] 
+        },
+        { 
+            q: "13. A circuit has a resistance of 200 Ω. The resistance of the circuit can be reduced to 120 Ω by adding which of the following to the circuit?", 
+            opts: ["80 Ω resistor in series", "150 Ω resistor in parallel", "240 Ω resistor in series", "300 Ω resistor in parallel"], 
+            ans: [3] 
+        },
+        { 
+            q: "14. A point charge q is placed midway between two identical positive point charges of magnitude 4.00 × 10^-9 C. The resultant force on each of the three charges is zero. Then q has to be:", 
+            opts: ["-1.00 × 10^-9 C", "-2.00 × 10^-9 C", "-4.00 × 10^-9 C", "-8.00 × 10^-9 C"], 
+            ans: [0] 
+        },
+        { 
+            q: "15. For a parallel-plate capacitor with plate area A and plate separation d, the capacitance is proportional to which of the following?", 
+            opts: ["A \\(\\cdot\\) d", "d / A", "A / d", "A / d²"], 
+            ans: [2] 
+        },
+        { 
+            q: "16. When light enters an optically denser medium, the light ray:", 
+            opts: ["bends away from the surface normal", "bends towards the surface normal", "passes through unbent", "is perfectly reflected back"], 
+            ans: [1] 
+        },
+        { 
+            q: "17. A bullet is fired with a muzzle velocity of 1000 m/s horizontally from a window 5 m above ground level. Neglecting air resistance, the horizontal distance at which the bullet will strike the ground is:", 
+            opts: ["500 m", "1000 m", "5 m", "5000 m"], 
+            ans: [1] 
+        },
+        { 
+            q: "18. A skater with mass M = 50 kg at rest on a frictionless ice surface throws a ball of mass m = 2 kg, giving the ball a velocity of 10 m/s. Which describes the skater's subsequent motion?", 
+            opts: ["0.4 m/s in the same direction", "2 m/s opposite direction", "0.4 m/s opposite direction", "2 m/s in the same direction"], 
+            ans: [2] 
+        },
+        { 
+            q: "19. Which of the following best describes the basic structure of a neutral atom?", 
+            opts: ["A nucleus containing protons and neutrons, surrounded by electrons.", "A nucleus containing protons and electrons, surrounded by neutrons.", "A single cluster containing a mix of protons, neutrons, and electrons.", "A nucleus containing only neutrons, with protons and electrons orbiting together."], 
+            ans: [0] 
+        },
+        { 
+            q: "20. Two identical conducting spheres are charged to +4Q and -2Q. They are separated by distance d. The magnitude of the force of attraction is F1. After they are made to touch and are separated by d, the magnitude of the force is F2. Which relationship is correct?", 
+            opts: ["F1 = F2", "F1 = 2F2", "2F1 = F2", "F1 = 8F2"], 
+            ans: [3] 
+        },
+        { 
+            q: "21. If an object has a constant acceleration a = 2 m/s² and starts from rest, the distance that it will have travelled after 5 s is:", 
+            opts: ["10 m", "20 m", "25 m", "50 m"], 
+            ans: [2] 
+        },
+        { 
+            q: "22. Under which of the following conditions does the behavior of a real gas resemble that of an ideal gas?", 
+            opts: ["Only at very high pressure.", "Under all conditions.", "Only when the gas is near condensation.", "Only at low densities when the molecules are relatively far apart."], 
+            ans: [3] 
+        },
+        { 
+            q: "23. An object with a mass m = 10 kg rests on a horizontal frictionless surface. A force of 50 Newtons is applied. After the force has been applied for 1 s, the velocity is:", 
+            opts: ["0 m/s", "0.5 m/s", "5 m/s", "50 m/s"], 
+            ans: [2] 
+        },
+        { 
+            q: "24. For an infinite sheet of positive charge, the electric field lines:", 
+            opts: ["run parallel to the sheet", "are perpendicular and point away from the sheet", "are perpendicular and point inward", "fall off as one over r squared"], 
+            ans: [1] 
+        },
+        { 
+            q: "25. If the frequency of a sound wave is doubled, the wavelength:", 
+            opts: ["doubles and the speed remains unchanged.", "halves and the speed halves.", "halves and the speed remains unchanged.", "doubles and the speed doubles."], 
+            ans: [2] 
+        },
+        { 
+            q: "26. A worker lifts a block with a mass m = 10 kg from h=0 m to a vertical height h=2 m. The work he does on the block is approximately:", 
+            opts: ["20 J", "49 J", "200 J", "5 J"], 
+            ans: [2] 
+        },
+        { 
+            q: "27. An astronaut of mass m is in a spaceship accelerating vertically upward from the earth's surface with acceleration a. The contact force exerted on the astronaut is given by:", 
+            opts: ["mg", "m(g+a)", "ma", "m(g-a)"], 
+            ans: [1] 
+        },
+        { 
+            q: "28. Which one of the following laws best describes the operation of an electric generator?", 
+            opts: ["Ampere's Law", "Gauss' Law", "Ohm's Law", "Faraday's Law of Induction"], 
+            ans: [3] 
+        },
+        { 
+            q: "29. Isotopes of an element have different numbers of:", 
+            opts: ["protons", "electrons", "neutrons", "leptons"], 
+            ans: [2] 
+        },
+        { 
+            q: "30. A charged particle moves in a uniform magnetic field with a velocity component parallel and one perpendicular to the magnetic field. Its path is:", 
+            opts: ["A circle", "A straight line", "A helix", "A parabola"], 
+            ans: [2] 
+        }
+    ];
+
+    const container = document.getElementById('questions-container');
+
+    // Build the quiz dynamically
+    quizData.forEach((item, index) => {
+        let questionHTML = `
+            <div class="question-card" id="q-card-${index}">
+                <div class="question-text">${item.q}</div>
+                <div class="options-list">
+        `;
+        
+        item.opts.forEach((opt, optIndex) => {
+            const letter = String.fromCharCode(65 +
+
